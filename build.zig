@@ -8,11 +8,6 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
-    const test_step = b.step("test", "Run all tests in all modes.");
-    const tests = b.addTest(.{ .root_module = clap_mod });
-    const run_tests = b.addRunArtifact(tests);
-    test_step.dependOn(&run_tests.step);
-
     const example_step = b.step("examples", "Build examples");
     for ([_][]const u8{
         "help",
@@ -34,16 +29,7 @@ pub fn build(b: *std.Build) void {
         example_step.dependOn(&install_example.step);
     }
 
-    const docs_step = b.step("docs", "Generate docs.");
-    const install_docs = b.addInstallDirectory(.{
-        .source_dir = tests.getEmittedDocs(),
-        .install_dir = .prefix,
-        .install_subdir = "docs",
-    });
-    docs_step.dependOn(&install_docs.step);
-
     const all_step = b.step("all", "Build everything and runs all tests");
-    all_step.dependOn(test_step);
     all_step.dependOn(example_step);
 
     b.default_step.dependOn(all_step);
